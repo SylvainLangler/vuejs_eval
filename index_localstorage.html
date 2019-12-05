@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+
+<html class="accueil" lang="fr">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>tp eval</title>
+	</head>
+	<body>
+		<div id="app">
+            <h1>{{ titre }}</h1>
+            <h2>{{ nomFacture }}</h2>
+            <table>
+                <tr>
+                    <th v-for='(col,index) in nomsColonne' :key='index'>
+                        {{ nomsColonne[index] }}
+                    </th>
+                </tr>
+                <tr v-for='(produit, index) in produits' :key='index'>
+                    <td>
+                        {{ produits[index]['id'] }}
+                    </td>
+                    <td>
+                        <input type="text" v-model="produits[index]['designation']">
+                    </td>
+                    <td>
+                        <input type="number" v-model="produits[index]['qte']">
+                    </td>
+                    <td>
+                        <input id="pu_ht" type="text" v-model="produits[index]['pu_ht']">
+                    </td>
+                    <td>
+                        <input type="number" v-model="produits[index]['tva']">
+                    </td>
+                    <td>
+                        {{ calculatePHT(index) }} €
+                    </td>
+                    <td>
+                        {{ calculatePTTC(index) }} €
+                    </td>
+                    <td>
+                        <button @click='deleteLine(index)'>
+                            {{ textButtonSuppr }}
+                        </button>
+                    </td>
+                </tr>
+            </table>
+            <div class="ajout">
+                <button @click='add' type="button">
+                    {{ textButtonAdd }}
+                </button>
+            </div>
+            <div class="toto">
+                <div class="total">
+                    {{ labelTotalHT }}
+                    <br>
+                    {{ total_ht }} €
+                </div>
+                <div class="total">
+                    {{ labelTotalTTC }}
+                    <br>
+                    {{ total_ttc }} €
+                </div>
+            </div>
+            debug : {{ produits }}
+        </div>
+    </body>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+		<script type="text/javascript">
+
+			var app = new Vue({
+				el: '#app',
+				data: {
+                    titre: "Evaluation Vuejs",
+                    nomFacture: "Facture du 1er Décembre 2019",
+                    nomsColonne: ['Id','Designation','Qte','Pu Ht','TVA','P Ht','P Ttc', ''],
+                    textButtonAdd: '+ Ajouter une ligne',
+                    textButtonSuppr: 'Suppr',
+                    labelTotalHT: "Total HT",
+                    labelTotalTTC: "Total TTC",
+                    produits: [{"id": 1, "designation": "avion", "qte": "3", "pu_ht": 210, "tva": 20, "p_ht": 756, "p_ttc": 907.2}],
+				},
+				methods:{   
+                    add: function(){
+
+                        if(!this.produits){
+                            this.produits = [];
+                        }
+
+                        let produit = new Object();
+                        produit['id'] = this.produits.length+1;
+                        produit['designation'] = '';
+                        produit['qte'] = '';
+                        produit['pu_ht'] = 0;
+                        produit['tva'] = 20;
+                        produit['p_ht'] = 0;
+                        produit['p_ttc'] = 0;
+
+                        this.produits.push(produit);
+                    },
+
+                    deleteLine: function(index){
+                        if(index != null){
+                            this.produits.splice(index, 1);
+                        }
+                    },
+
+                    calculatePHT: function(index){
+                        let pht = this.produits[index]['qte'] * this.produits[index]['pu_ht'];
+                        this.produits[index]['p_ht'] = pht;
+                        return pht;
+                    },
+
+                    calculatePTTC: function(index){
+                        let tva = this.produits[index]['tva'] / 100;
+                        let pttc = this.calculatePHT(index) + this.calculatePHT(index) * tva;
+                        this.produits[index]['p_ttc'] = pttc;
+                        return pttc;
+                    }
+				},
+                computed:{
+                    total_ht:{
+                        get(){
+                            let total = 0;
+                            for(let i = 0; i<this.produits.length; i++){
+                                total += this.produits[i]['p_ht'];
+                            }
+                            return total;
+                        }
+                    },
+                    total_ttc:{
+                        get(){
+                            let total = 0;
+                            for(let i = 0; i<this.produits.length; i++){
+                                total += this.produits[i]['p_ttc'];
+                            }
+                            return total;
+                        }
+                    }
+                },
+
+                mounted(){
+                    this.produits = JSON.parse(localStorage.getItem('produits'));
+                },
+
+                watch: {
+                    produits: {
+                        handler: function() {
+                            localStorage.setItem("produits", JSON.stringify(this.produits));
+                        },
+                        deep : true
+                    }
+                }
+			});
+
+    </script>
+    <style>
+        body{
+            background-color:#403d52;
+            color:white;
+        }
+        #app{
+            width:900px;
+            margin:0 auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #app h1{
+            text-align:center;
+        }
+
+        #app h2{
+            align-self:flex-end;
+        }
+
+        table{
+            border-top:1px solid #d6d6d6;
+            padding: 10px 5px;
+            border-collapse: collapse;
+        }
+
+        table tr{
+            height:40px;
+        }
+        
+        table tr:nth-child(2n){
+            background-color: #211d3a;
+        }
+
+        table td{
+            text-align:center;
+        }
+
+        table input{
+            border: 1px solid grey;
+            background-color: transparent;
+            border-radius: 4px;
+            padding: 5px;
+            color:white;
+        }
+
+        table input[type='number']{
+            width:30px;
+        }
+
+        #pu_ht{
+            width:90px;
+        }
+        
+        .ajout{
+            align-self:center;
+        }
+
+        .ajout button{
+            padding:5px;
+            
+        }
+
+        .toto{
+            align-self:flex-end;
+            margin-right:120px;
+        }
+
+        .total{
+            width: 100px;
+            padding: 10px;
+            border-radius:3px;
+            background-color: lightgrey;
+            color: black;
+            text-align: center;
+            margin-bottom:10px;
+        }
+    </style>

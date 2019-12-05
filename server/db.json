@@ -2,21 +2,24 @@
   "factures": [
     {
       "id": 1,
-      "designation": "un avion",
-      "qte": "3",
-      "pu_ht": 210,
+      "designation": "r",
+      "qte": "",
+      "pu_ht": 0,
       "tva": 20,
-      "p_ht": 756,
-      "p_ttc": 907.2
+      "p_ht": 0,
+      "p_ttc": 0
     },
     {
-      "id": 2,
-      "designation": "un bateau",
-      "qte": "4",
-      "pu_ht": 20,
-      "tva": 0,
-      "p_ht": 80,
-      "p_ttc": 80
+      "id": 4,
+      "designation": "ooo",
+      "qte": "",
+      "pu_ht": 0,
+      "tva": 20,
+      "p_ht": 0,
+      "p_ttc": 0
+    },
+    {
+      "id": 5
     }
   ]
 }
